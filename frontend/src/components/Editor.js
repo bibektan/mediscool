@@ -61,53 +61,22 @@ function Editor() {
 
         window.addEventListener('keydown', handleKeyDown);
 
-        // const editableDiv = document.querySelector('.editabledivblock');
-        // const beforeElement = editableDiv.querySelector('::before');
-
-        // console.log(editableDiv)
-        // console.log(beforeElement)
-
-        // editableDiv.addEventListener('mouseenter', () => {
-        //     beforeElement.style.backgroundColor = 'blue';
-        // });
-
-        // editableDiv.addEventListener('mouseleave', () => {
-        //     beforeElement.style.backgroundColor = 'red';
-        // });
-
-        // const editableDiv = document.querySelector('.editabledivblock::before');
-        // console.log(editableDiv)
-
-        // editableDiv.addEventListener('mouseenter', () => {
-        //     editableDiv.style.setProperty('--before-background-color', 'blue');
-        // });
-
-        // editableDiv.addEventListener('mouseleave', () => {
-        //     editableDiv.style.setProperty('--before-background-color', 'red');
-        // });
-
-        // let ediv = document.querySelector(".editabledivblock")
-        // ediv.addEventListener("input", (e)=>{
-        //     console.log('yes input')
-        //     console.log(e.target)
-        // })
-
         const editableDiv = document.querySelector('.editabledivblock');
 
         // Create an input event object.
-        const inputEvent = new Event('input');
+        // const inputEvent = new Event('input');
 
         // Focus the editable div element.
         editableDiv.focus();
 
         // Enable the editable div element.
-        editableDiv.disabled = false;
+        // editableDiv.disabled = false;
 
         // Make the editable div element visible.
-        editableDiv.style.display = 'block';
+        // editableDiv.style.display = 'block';
 
         // Dispatch the input event to the editable div.
-        editableDiv.dispatchEvent(inputEvent);
+        // editableDiv.dispatchEvent(inputEvent);
 
         // Add an input event listener to the editable div.
         editableDiv.addEventListener('input', (e) => {
@@ -236,6 +205,7 @@ function Editor() {
 
     }
 
+    // for popup
     function editableValue(e, type){
         if(type == 'title'){
             var changedTitle = e.target.innerHTML
@@ -451,6 +421,61 @@ function Editor() {
         }
     }
 
+    // for image slider
+    function addSlider(){
+        let canva = document.querySelector(".offcanvas-body")
+        let el = sliderElement()
+
+        canva.insertBefore(el, canva.lastChild)
+    }
+    // slider element
+    const sliderElement = ()=>{
+        let div = document.createElement("div");
+        // div.setAttribute("contentEditable", true);
+        div.classList.add("border");
+        div.classList.add("border-light");
+        div.classList.add(styles.sliderMainDiv);
+
+        let closeButton = document.createElement("button")
+        closeButton.classList.add(styles.sliderItem)
+        closeButton.classList.add(styles.sliderCloseButton)
+        closeButton.classList.add('btn-close')
+        closeButton.setAttribute("type", "button")
+        closeButton.setAttribute("aria-label", "Close")
+        div.appendChild(closeButton)
+        
+        closeButton.addEventListener("click", (e)=>{
+            div.remove()
+        })
+
+        let selectImg = document.createElement("input")
+        selectImg.classList.add(styles.sliderItem);
+        selectImg.setAttribute("type", "file")
+        selectImg.style.cursor="pointer"
+        div.appendChild(selectImg)
+        
+        let imgBox = document.createElement("div")
+        imgBox.classList.add(styles.sliderItem);
+        imgBox.classList.add(styles.sliderImgBoxDiv)
+        div.appendChild(imgBox)
+
+        let titleInput = document.createElement("input")
+        titleInput.classList.add('form-control')
+        titleInput.classList.add(styles.sliderItem)
+        titleInput.setAttribute("type", "text")
+        titleInput.setAttribute("placeholder", "Title")
+        div.appendChild(titleInput)
+        
+        let description = document.createElement("textarea")
+        description.classList.add('form-control')
+        description.classList.add(styles.sliderItem)
+        description.setAttribute("placeholder", "Description")
+        description.setAttribute("rows", "3")
+        div.appendChild(description)
+
+        return div
+    }
+
   return (
     <div>
         {/* feature */}
@@ -496,7 +521,8 @@ function Editor() {
             <button onClick={quiz} className={'btn btn-secondary ' + styles.featureItems}>quiz</button>
 
               {/* Image Slider */}
-              <button onClick={imageSlider} className={'btn btn-secondary ' + styles.featureItems} type="button" data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop">Slider</button>
+              {/* onClick={imageSlider} */}
+              <button className={'btn btn-secondary ' + styles.featureItems} type="button" data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop">Slider</button>
         </div>
 
         {/* editor */}
@@ -515,8 +541,8 @@ function Editor() {
                   <button type="button" className="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
               </div>
               <div className="offcanvas-body">
-                  <div>
-                      I will not close if you click outside of me.
+                  <div className="my-3">
+                    <button onClick={addSlider} className='btn btn-primary'>Add Slider</button>
                   </div>
               </div>
           </div>

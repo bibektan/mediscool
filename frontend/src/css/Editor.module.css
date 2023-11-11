@@ -83,3 +83,24 @@
 .quizButtonSetAnswerFalseStyle {
     border: 1px solid grey;
 }
+
+.sliderMainDiv{
+    margin: 30px 0px;
+    padding: 15px;
+    position: relative;
+}
+.sliderItem{
+    padding: 12px 5px;
+    margin: 9px 0px;
+    border-bottom: 1px solid grey;
+}
+.sliderImgBoxDiv{
+    width: 100%;
+    height: 300px;
+    /* background-color: red; */
+}
+.sliderCloseButton{
+    position: absolute;
+    top: -5px;
+    right: 10px;
+}
