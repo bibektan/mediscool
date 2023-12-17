@@ -99,8 +99,48 @@
     height: 300px;
     /* background-color: red; */
 }
+.sliderImageInBox{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 .sliderCloseButton{
     position: absolute;
     top: -5px;
     right: 10px;
 }
+
+.rightOptionMain{
+    /* display: none; */
+    width: 150px;
+    height: auto;
+    border: 1px solid white;
+    box-shadow: 2px 2px 5px 1px rgb(107, 106, 106);
+    background-color: white;
+    color: black;
+    padding: 5px;
+    position: absolute;
+    z-index: 10000;
+    display: none;
+}
+
+.rightOptionMain div{
+    text-align: center;
+    margin: 18px 6px;
+    box-shadow: 1px 1px 2px 1px rgb(107, 106, 106);
+    /* border: 1px solid white; */
+    padding: 3px;
+    cursor: pointer;
+}
+
+.rightOptionMain[data-clickmenuopened="false"] {
+    /* display: none; */
+    /* visibility: hidden; */
+    /* background-color: green; */
+}
+.closemenu{
+    /* display:  */
+}
+/* .rightOptionMain[data-clickmenuopened="true"] {
+    background-color: red;
+} */

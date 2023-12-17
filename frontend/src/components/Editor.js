@@ -59,7 +59,29 @@ function Editor() {
             }
         };
 
+        // for keyboard
         window.addEventListener('keydown', handleKeyDown);
+
+        // for mouse click
+        window.addEventListener('click', (e)=>{
+
+            let curr_opened_menu = document.querySelectorAll('[data-clickmenuopened="true"]')
+
+            for (let index = 0; index < curr_opened_menu.length; index++) {
+                const element = curr_opened_menu[index];
+                if(element.contains(e.target)){
+                    console.log('Clicked within myElement or its descendants');
+                } else {
+                    console.log('Clicked outside myElement');
+                    element.setAttribute("data-clickmenuopened", "false")
+                    element.style.display = "none"
+                }
+            }
+
+            console.log('clicked')
+            console.log(curr_opened_menu.length)
+            console.log(curr_opened_menu)
+        })
 
         const editableDiv = document.querySelector('.editabledivblock');
 
@@ -218,7 +240,6 @@ function Editor() {
             currentpopupelement.setAttribute("body", changedBody)
         }
     }
-
 
     // quiz
     function QuizAnswer(question, defaultAnswer, callback){
@@ -423,15 +444,24 @@ function Editor() {
 
     // for image slider
     function addSlider(){
+
         let canva = document.querySelector(".offcanvas-body")
         let el = sliderElement()
 
         canva.insertBefore(el, canva.lastChild)
     }
+
+    // submit slider
+    function submitSlider(){
+
+    }
+
     // slider element
     const sliderElement = ()=>{
         let div = document.createElement("div");
         // div.setAttribute("contentEditable", true);
+        let id = parseInt(Math.random() * 999999999999999) ;
+        div.setAttribute("data-sliderparent", id)
         div.classList.add("border");
         div.classList.add("border-light");
         div.classList.add(styles.sliderMainDiv);
@@ -448,6 +478,7 @@ function Editor() {
             div.remove()
         })
 
+        // image input element
         let selectImg = document.createElement("input")
         selectImg.classList.add(styles.sliderItem);
         selectImg.setAttribute("type", "file")
@@ -457,11 +488,28 @@ function Editor() {
         let imgBox = document.createElement("div")
         imgBox.classList.add(styles.sliderItem);
         imgBox.classList.add(styles.sliderImgBoxDiv)
+
+        let imgTag = document.createElement("img")
+        imgTag.classList.add(styles.sliderImageInBox)
+        imgTag.setAttribute("data-sliderimage", id)
+        imgTag.setAttribute("data-has-file", "false")
+        imgTag.src = process.env.PUBLIC_URL + '/logo512.png'
+        imgBox.append(imgTag)
         div.appendChild(imgBox)
+        
+        // TODO: on_submit: upload image on server and: show slider fetching from server. on_delete: remove previous image. after uploaded, do: 'choose file' button disabled and: edit|delete enabled.
+        selectImg.addEventListener("change", (e) => {
+            // console.log(e.target.files[0])
+            let imgUrl = URL.createObjectURL(e.target.files[0])
+            imgTag.src = imgUrl;
+            imgTag.setAttribute("data-has-file", "true")
+            imgTag.setAttribute("data-file-url", imgUrl)
+        })
 
         let titleInput = document.createElement("input")
         titleInput.classList.add('form-control')
         titleInput.classList.add(styles.sliderItem)
+        titleInput.setAttribute("data-slidertitle", id)
         titleInput.setAttribute("type", "text")
         titleInput.setAttribute("placeholder", "Title")
         div.appendChild(titleInput)
@@ -469,11 +517,30 @@ function Editor() {
         let description = document.createElement("textarea")
         description.classList.add('form-control')
         description.classList.add(styles.sliderItem)
+        description.setAttribute("data-sliderdescription", id)
         description.setAttribute("placeholder", "Description")
         description.setAttribute("rows", "3")
         div.appendChild(description)
 
         return div
+    }
+
+    // main editable div Right Clicked
+    function rightClickedEditableDiv(e){
+        e.preventDefault()
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+
+        let menu = document.getElementById("rightoptionmenu")
+        menu.style.display = 'block'
+        menu.style.top = mouseY+"px"
+        menu.style.left = mouseX+"px"
+        menu.setAttribute("data-clickmenuopened", 'true')
+        
+        console.log('right clicked')
+        console.log(e.target)
+        console.log('x: ', mouseX)
+        console.log('y: ', mouseY)
     }
 
   return (
@@ -527,7 +594,7 @@ function Editor() {
 
         {/* editor */}
         <div className={'border border-secondary ' + styles.main } id='mainDiv'>
-            <div contentEditable className={'border border-secondary editabledivblock '+styles.editablediv}></div>
+            <div onContextMenu={rightClickedEditableDiv} contentEditable className={'border border-secondary editabledivblock '+styles.editablediv}></div>
         </div>
 
         {/* add more button */}
@@ -542,7 +609,8 @@ function Editor() {
               </div>
               <div className="offcanvas-body">
                   <div className="my-3">
-                    <button onClick={addSlider} className='btn btn-primary'>Add Slider</button>
+                      <button onClick={addSlider} className='btn btn-primary'>Add Slider</button>
+                      <button id='imageslidersubmitbutton' data-tempid="" onClick={submitSlider} className='ms-3 btn btn-success'>Submit</button>
                   </div>
               </div>
           </div>
@@ -567,6 +635,15 @@ function Editor() {
                 </div>
                 </div>
             </div>
+        </div>
+
+        {/* right clicked options */}
+          <div id='rightoptionmenu' data-clickmenuopened='false' className={styles.rightOptionMain}>
+            <div className='carouselmenu' data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop">Carousel</div>
+            <div>hello 2</div>
+            <div>hello 3</div>
+            <div>hello 4</div>
+            <div>hello 5</div>
         </div>
 
     </div>
