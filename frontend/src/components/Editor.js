@@ -116,6 +116,9 @@ function Editor() {
         div.classList.add("border");
         div.classList.add("border-secondary");
         div.classList.add(styles.editablediv);
+        div.id = parseInt(Math.random()*999999999999999)
+
+        div.addEventListener("contextmenu", (e) => rightClickedEditableDiv(e));
 
         mainDiv.appendChild(div)
     }
@@ -536,11 +539,27 @@ function Editor() {
         menu.style.top = mouseY+"px"
         menu.style.left = mouseX+"px"
         menu.setAttribute("data-clickmenuopened", 'true')
+        menu.setAttribute("data-whichdiv", e.target.id)
+
+        const carouselMenuElement = menu.querySelector('.carouselmenu');
         
         console.log('right clicked')
-        console.log(e.target)
+        console.log('e.target: ', e.target)
+        console.log('right option: ', menu)
+        console.log('carousel Menu: ', carouselMenuElement)
         console.log('x: ', mouseX)
         console.log('y: ', mouseY)
+    }
+
+    // delete Editable Div
+    function deleteEditableDiv(e){
+        console.log('deleting')
+
+        let optionmenu = e.target.parentElement
+        let deleteDiv = document.getElementById(optionmenu.getAttribute("data-whichdiv"))
+        deleteDiv.remove()
+
+        optionmenu.style.display = "none"
     }
 
   return (
@@ -594,7 +613,7 @@ function Editor() {
 
         {/* editor */}
         <div className={'border border-secondary ' + styles.main } id='mainDiv'>
-            <div onContextMenu={rightClickedEditableDiv} contentEditable className={'border border-secondary editabledivblock '+styles.editablediv}></div>
+            <div id={parseInt(Math.random() * 999999999999999)} onContextMenu={rightClickedEditableDiv} contentEditable className={'border border-secondary editabledivblock '+styles.editablediv}></div>
         </div>
 
         {/* add more button */}
@@ -638,9 +657,9 @@ function Editor() {
         </div>
 
         {/* right clicked options */}
-          <div id='rightoptionmenu' data-clickmenuopened='false' className={styles.rightOptionMain}>
+          <div id='rightoptionmenu' data-clickmenuopened='false' data-whichdiv="" className={styles.rightOptionMain}>
             <div className='carouselmenu' data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop">Carousel</div>
-            <div>hello 2</div>
+            <div onClick={deleteEditableDiv}>Delete</div>
             <div>hello 3</div>
             <div>hello 4</div>
             <div>hello 5</div>
