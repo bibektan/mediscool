@@ -64,23 +64,23 @@ function Editor() {
 
         // for mouse click
         window.addEventListener('click', (e)=>{
+            console.log('clicked')
 
             let curr_opened_menu = document.querySelectorAll('[data-clickmenuopened="true"]')
 
-            for (let index = 0; index < curr_opened_menu.length; index++) {
-                const element = curr_opened_menu[index];
-                if(element.contains(e.target)){
-                    console.log('Clicked within myElement or its descendants');
-                } else {
-                    console.log('Clicked outside myElement');
-                    element.setAttribute("data-clickmenuopened", "false")
-                    element.style.display = "none"
+            if(curr_opened_menu.length > 0){
+                for (let index = 0; index < curr_opened_menu.length; index++) {
+                    const element = curr_opened_menu[index];
+                    if(element.contains(e.target)){
+                        console.log('Clicked within myElement or its descendants');
+                    } else {
+                        console.log('Clicked outside myElement');
+                        element.setAttribute("data-clickmenuopened", "false")
+                        element.style.display = "none"
+                    }
                 }
             }
 
-            console.log('clicked')
-            console.log(curr_opened_menu.length)
-            console.log(curr_opened_menu)
         })
 
         const editableDiv = document.querySelector('.editabledivblock');
@@ -448,22 +448,23 @@ function Editor() {
     // for image slider
     function addSlider(){
 
+        console.log('from add slider')
+
+        let menu = document.getElementById("rightoptionmenu")
+        let idOfThatEditableDiv = menu.getAttribute("data-whichdiv") //trying to get id of the editable div: will set this id in each element of the slider like image, title, description: later helps to find & connect two of them i.e. all the slider items belongings to that editable div.
+
         let canva = document.querySelector(".offcanvas-body")
-        let el = sliderElement()
+        let el = sliderElement(idOfThatEditableDiv)
 
         canva.insertBefore(el, canva.lastChild)
     }
 
-    // submit slider
-    function submitSlider(){
-
-    }
-
     // slider element
-    const sliderElement = ()=>{
+    const sliderElement = (idOfThatEditableDiv)=>{
         let div = document.createElement("div");
         // div.setAttribute("contentEditable", true);
-        let id = parseInt(Math.random() * 999999999999999) ;
+        let id = parseInt(Math.random() * 999999999999999);
+        div.setAttribute("data-slider-of-which-div", idOfThatEditableDiv)
         div.setAttribute("data-sliderparent", id)
         div.classList.add("border");
         div.classList.add("border-light");
@@ -528,6 +529,94 @@ function Editor() {
         return div
     }
 
+    // submit slider
+    function submitSlider() {
+        let menu = document.getElementById("rightoptionmenu")
+        let idOfThatEditableDiv = menu.getAttribute("data-whichdiv")
+
+        let allItems = document.querySelectorAll(`[data-slider-of-which-div="${idOfThatEditableDiv}"]`)
+        console.log('submitted')
+        for(let i=0; i<allItems.length; i++){
+            let el = allItems[i]
+            let el_id = el.getAttribute("data-sliderparent");
+
+            let imageEl = document.querySelector(`[data-sliderimage="${el_id}"]`)
+            let titleInputEl = document.querySelector(`[data-slidertitle="${el_id}"]`)
+            let titleDescEl = document.querySelector(`[data-sliderdescription="${el_id}"]`)
+
+            let imgSrc = imageEl.getAttribute("src");
+            let title = titleInputEl.value;
+            let description = titleDescEl.value;
+            // if(imageEl.getAttribute("data-has-file") == "false"){
+            //     imgSrc = imageEl.getAttribute("")
+            // }
+
+            let carouselSection = document.getElementById("carouselSection")
+
+
+            console.log('src: ', imgSrc)
+            console.log('title: ', title)
+            console.log('desc: ', description)
+        }
+    }
+
+    // carousel element
+    function carouselElement(nth, imageSrc, title, description){
+        let id = parseInt(Math.random()*999999999999999);
+        let mainDiv = document.createElement("div");
+        mainDiv.id = id;
+        mainDiv.classList.add("carousel")
+        mainDiv.classList.add("carousel-dark")
+        mainDiv.classList.add("slide")
+        mainDiv.setAttribute("data-bs-ride", "carousel")
+
+        // carousel indicators
+        let carIndicatorDiv = document.createElement("div");
+        carIndicatorDiv.classList.add("carousel-indicators");
+
+        // indicators
+        for(let i=0;i<nth;i++){
+            let indicatorButton = document.createElement("button");
+            indicatorButton.setAttribute("type", "button");
+            indicatorButton.setAttribute("data-bs-target", `#${id}`);
+            indicatorButton.setAttribute("data-bs-slide-to", `#${i}`);
+            indicatorButton.setAttribute("aria-current", `true`);
+            indicatorButton.setAttribute("aria-label", `Slide ${i+1}`);
+            if(i == 0){
+                indicatorButton.classList.add("active");
+            }
+            carIndicatorDiv.appendChild(indicatorButton);
+        }
+
+        let carouselInnerDiv = document.createElement("div")
+        carouselInnerDiv.classList.add("carousel-inner")
+
+        // items
+        for(let ind=0;ind<nth;ind++){
+            let carouselItem = document.createElement("div")
+            carouselItem.setAttribute("data-bs-interval", "3000");
+            carouselItem.classList.add("carousel-item")
+            if(ind == 0){
+                carouselItem.classList.add("active")
+            }
+
+            // image
+            let imgDiv = document.createElement("div")
+            imgDiv.classList.add(styles.carouselImgDiv)
+            let imgTag = document.createElement("img")
+            imgTag.setAttribute("src", imageSrc)
+            imgTag.classList.add(styles.carouselImg)
+            imgDiv.appendChild(imgTag)
+            carouselItem.appendChild(imgDiv)
+
+            // caption
+            let captionDiv = document.createElement("div")
+            captionDiv.classList.add("carousel-caption")
+            captionDiv.classList.add("text-white")
+            captionDiv.classList.add("d-none")
+        }
+    }
+
     // main editable div Right Clicked
     function rightClickedEditableDiv(e){
         e.preventDefault()
@@ -535,6 +624,7 @@ function Editor() {
         const mouseY = e.clientY;
 
         let menu = document.getElementById("rightoptionmenu")
+
         menu.style.display = 'block'
         menu.style.top = mouseY+"px"
         menu.style.left = mouseX+"px"
@@ -559,6 +649,12 @@ function Editor() {
         let deleteDiv = document.getElementById(optionmenu.getAttribute("data-whichdiv"))
         deleteDiv.remove()
 
+        optionmenu.style.display = "none"
+    }
+
+    // carousel menu clicked
+    function carouselMenuGotClicked(e){
+        let optionmenu = e.target.parentElement
         optionmenu.style.display = "none"
     }
 
@@ -658,12 +754,61 @@ function Editor() {
 
         {/* right clicked options */}
           <div id='rightoptionmenu' data-clickmenuopened='false' data-whichdiv="" className={styles.rightOptionMain}>
-            <div className='carouselmenu' data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop">Carousel</div>
+            <div onClick={carouselMenuGotClicked} className='carouselmenu' data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop">Carousel</div>
             <div onClick={deleteEditableDiv}>Delete</div>
             <div>hello 3</div>
             <div>hello 4</div>
             <div>hello 5</div>
         </div>
+
+        {/* carousel */}
+          <div id="carouselSection" className="carousel carousel-dark slide" data-bs-ride="carousel">
+              <div className="carousel-indicators">
+                  <button type="button" data-bs-target="#carouselSection" data-bs-slide-to="0" className="active" aria-current="true" aria-label="Slide 1"></button>
+                  <button type="button" data-bs-target="#carouselSection" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                  <button type="button" data-bs-target="#carouselSection" data-bs-slide-to="2" aria-label="Slide 3"></button>
+              </div>
+              <div className="carousel-inner">
+                  <div className="carousel-item active" data-bs-interval="2000">
+                    <div className={styles.carouselImgDiv}>
+                          <img src="https://3.bp.blogspot.com/-eOR0aaChxAw/UR-VGiVnp1I/AAAAAAAABnM/_bIC8_EisxQ/s1600/image-slider-2.jpg" className={styles.carouselImg} alt="first" />
+                    </div>
+                      <div className={"carousel-caption text-white d-none d-md-block "}>
+                        <h5>First slide label</h5>
+                        <p>Some representative placeholder content for the first slide.</p>
+                    </div>
+                  </div>
+                  <div className="carousel-item" data-bs-interval="2000">
+                      <div className={styles.carouselImgDiv}>
+                        <img src="https://cssslider.com/sliders/demo-34/data1/images/chicago690364_1280.jpg" className={styles.carouselImg} alt="first" />
+                        </div>
+                      <div className={"carousel-caption text-white d-none d-md-block "}>
+                        <h5>First slide label</h5>
+                        <p>Some representative placeholder content for the first slide.</p>
+                    </div>
+                  </div>
+                  <div className="carousel-item" data-bs-interval="2000">
+                    <div className={styles.carouselImgDiv}>
+                        <img src={process.env.PUBLIC_URL + '/abc.jpg'} className={styles.carouselImg} alt="first" />
+                    </div>
+                    <div className={"carousel-caption text-white d-none d-md-block "}>
+                        <h5>First slide label</h5>
+                        <p>Some representative placeholder content for the first slide.</p>
+                    </div>
+                  </div>
+              </div>
+              <button className="carousel-control-prev" type="button" data-bs-target="#carouselSection" data-bs-slide="prev">
+                  <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span className="visually-hidden">Previous</span>
+              </button>
+              <button className="carousel-control-next" type="button" data-bs-target="#carouselSection" data-bs-slide="next">
+                  <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span className="visually-hidden">Next</span>
+              </button>
+          </div>
+
+            <br></br>
+          <div className="m-3"></div>
 
     </div>
   )
