@@ -533,10 +533,18 @@ function Editor() {
     function submitSlider() {
         let menu = document.getElementById("rightoptionmenu")
         let idOfThatEditableDiv = menu.getAttribute("data-whichdiv")
+        let editableDiv = document.getElementById(idOfThatEditableDiv)
 
         let allItems = document.querySelectorAll(`[data-slider-of-which-div="${idOfThatEditableDiv}"]`)
         console.log('submitted')
+        
+        let imageSource = []
+        let carouselTitle = []
+        let carouselDescription = []
+        let count = 0
+
         for(let i=0; i<allItems.length; i++){
+            count++;
             let el = allItems[i]
             let el_id = el.getAttribute("data-sliderparent");
 
@@ -553,12 +561,27 @@ function Editor() {
 
             let carouselSection = document.getElementById("carouselSection")
 
+            imageSource.push(imgSrc)
+            carouselTitle.push(title)
+            carouselDescription.push(description)
+
 
             console.log('src: ', imgSrc)
             console.log('title: ', title)
             console.log('desc: ', description)
         }
+
+        let carouselElementDiv = carouselElement(count, imageSource, carouselTitle, carouselDescription);
+
+        editableDiv.append(carouselElementDiv)
+        
+
+        console.log('id of editableDiv: ', idOfThatEditableDiv)
+        console.log('editableDiv: ', editableDiv)
+        console.log('the end')
     }
+
+
 
     // carousel element
     function carouselElement(nth, imageSrc, title, description){
@@ -604,7 +627,7 @@ function Editor() {
             let imgDiv = document.createElement("div")
             imgDiv.classList.add(styles.carouselImgDiv)
             let imgTag = document.createElement("img")
-            imgTag.setAttribute("src", imageSrc)
+            imgTag.setAttribute("src", imageSrc[ind])
             imgTag.classList.add(styles.carouselImg)
             imgDiv.appendChild(imgTag)
             carouselItem.appendChild(imgDiv)
@@ -614,7 +637,63 @@ function Editor() {
             captionDiv.classList.add("carousel-caption")
             captionDiv.classList.add("text-white")
             captionDiv.classList.add("d-none")
+            captionDiv.classList.add("d-md-block")
+            carouselItem.appendChild(captionDiv)
+
+            // caption title and description
+            let captionTitle = document.createElement("h5")
+            captionTitle.textContent = title[ind]
+            let captionDesc = document.createElement("p")
+            captionDesc.textContent = description[ind]
+            captionDiv.appendChild(captionTitle)
+            captionDiv.appendChild(captionDesc)
+         
+            carouselInnerDiv.appendChild(carouselItem)
         }
+
+        mainDiv.appendChild(carIndicatorDiv)
+        mainDiv.appendChild(carouselInnerDiv)
+
+        // controls
+        let prevButton = document.createElement("button")
+        prevButton.classList.add("carousel-control-prev")
+        prevButton.setAttribute("type", "button")
+        prevButton.setAttribute("data-bs-target", `#${id}`)
+        prevButton.setAttribute("data-bs-slide", "prev")
+        mainDiv.appendChild(prevButton)
+
+        let prevButtonSpan = document.createElement("span")
+        prevButtonSpan.classList.add("carousel-control-prev-icon")
+        prevButtonSpan.setAttribute("aria-hidden", "true")
+        prevButton.appendChild(prevButtonSpan)
+
+        let prevButtonSpan2 = document.createElement("span")
+        prevButtonSpan2.classList.add("visually-hidden")
+        prevButtonSpan2.textContent = "Previous"
+        prevButton.appendChild(prevButtonSpan2)
+
+        let nextButton = document.createElement("button")
+        nextButton.classList.add("carousel-control-next")
+        nextButton.setAttribute("type", "button")
+        nextButton.setAttribute("data-bs-target", `#${id}`)
+        nextButton.setAttribute("data-bs-slide", "next")
+        mainDiv.appendChild(nextButton)
+
+        let nextButtonSpan = document.createElement("span")
+        nextButtonSpan.classList.add("carousel-control-next-icon")
+        nextButtonSpan.setAttribute("aria-hidden", "true")
+        nextButton.appendChild(nextButtonSpan)
+
+        let nextButtonSpan2 = document.createElement("span")
+        nextButtonSpan2.classList.add("visually-hidden")
+        nextButtonSpan2.textContent = "Next"
+        nextButton.appendChild(nextButtonSpan2)
+
+        let mainDivSpace = document.createElement("span")
+        mainDivSpace.innerHTML = "&nbsp;"
+        mainDiv.appendChild(mainDivSpace)
+
+        return mainDiv
     }
 
     // main editable div Right Clicked
@@ -773,7 +852,7 @@ function Editor() {
                     <div className={styles.carouselImgDiv}>
                           <img src="https://3.bp.blogspot.com/-eOR0aaChxAw/UR-VGiVnp1I/AAAAAAAABnM/_bIC8_EisxQ/s1600/image-slider-2.jpg" className={styles.carouselImg} alt="first" />
                     </div>
-                      <div className={"carousel-caption text-white d-none d-md-block "}>
+                    <div className={"carousel-caption text-white d-none d-md-block "}>
                         <h5>First slide label</h5>
                         <p>Some representative placeholder content for the first slide.</p>
                     </div>
