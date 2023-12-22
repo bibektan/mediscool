@@ -64,7 +64,7 @@ function Editor() {
 
         // for mouse click
         window.addEventListener('click', (e)=>{
-            console.log('clicked')
+            // console.log('clicked')
 
             let curr_opened_menu = document.querySelectorAll('[data-clickmenuopened="true"]')
 
@@ -72,9 +72,9 @@ function Editor() {
                 for (let index = 0; index < curr_opened_menu.length; index++) {
                     const element = curr_opened_menu[index];
                     if(element.contains(e.target)){
-                        console.log('Clicked within myElement or its descendants');
+                        // console.log('Clicked within myElement or its descendants');
                     } else {
-                        console.log('Clicked outside myElement');
+                        // console.log('Clicked outside myElement');
                         element.setAttribute("data-clickmenuopened", "false")
                         element.style.display = "none"
                     }
@@ -453,6 +453,7 @@ function Editor() {
 
         let menu = document.getElementById("rightoptionmenu")
         let idOfThatEditableDiv = menu.getAttribute("data-whichdiv") //trying to get id of the editable div: will set this id in each element of the slider like image, title, description: later helps to find & connect two of them i.e. all the slider items belongings to that editable div.
+        console.log('id of that editable div: ', idOfThatEditableDiv)
 
         let sidebarBody = document.querySelector(".offcanvas-body")
         let el = sliderElement(idOfThatEditableDiv)
@@ -531,7 +532,9 @@ function Editor() {
     }
 
     // submit slider
-    function submitSlider() {
+    function submitSlider(e) {
+        let mode = e.target.getAttribute("data-mode")
+
         let menu = document.getElementById("rightoptionmenu")
         let idOfThatEditableDiv = menu.getAttribute("data-whichdiv")
         let editableDiv = document.getElementById(idOfThatEditableDiv)
@@ -575,6 +578,14 @@ function Editor() {
         let carouselElementDiv = carouselElement(count, imageSource, carouselTitle, carouselDescription);
 
         editableDiv.removeAttribute("contentEditable")
+        
+        // delete all child elements of editable div if mode is edit
+        if(mode == "edit"){
+            while (editableDiv.firstChild) {
+                editableDiv.removeChild(editableDiv.firstChild);
+            }
+        }
+
         editableDiv.append(carouselElementDiv)
         editableDiv.setAttribute("data-what-it-became", "carousel")
 
@@ -597,6 +608,8 @@ function Editor() {
         let sidebarClose = document.getElementById("sidebarclosebutton")
         sidebarClose.click()
         
+        // set submit data-mode to normal
+        e.target.setAttribute("data-mode", "normal")
 
         console.log('id of editableDiv: ', idOfThatEditableDiv)
         console.log('editableDiv: ', editableDiv)
@@ -718,8 +731,28 @@ function Editor() {
 
     // main editable div Right Clicked
     function rightClickedEditableDiv(e){
-
         e.preventDefault()
+        console.log('right clicked')
+        // what is the difference between e.target and e.currentTarget?
+        // e.target is the element that triggered the event (e.g., the user clicked on)
+        // e.currentTarget is the element that the event listener is attached to.
+        let self = e.currentTarget
+        let whatItBecame = self.getAttribute("data-what-it-became")
+
+        if (whatItBecame == "carousel") {
+            let carouselOption = document.getElementById("carouselOptionDiv")
+            carouselOption.textContent = "Edit Carousel"
+            carouselOption.setAttribute("data-what-mode", "edit")
+            carouselOption.setAttribute("data-editableDivId", self.id)
+
+            // make carousel submit button mode edit
+            let submitButton = document.getElementById("imageslidersubmitbutton")
+            submitButton.setAttribute("data-mode", "edit")
+
+            let deleteOption = document.getElementById("deleteOptionDiv")
+            deleteOption.textContent = "Delete Carousel"
+        }
+
         const mouseX = e.clientX;
         const mouseY = e.clientY;
 
@@ -729,7 +762,7 @@ function Editor() {
         menu.style.top = mouseY+"px"
         menu.style.left = mouseX+"px"
         menu.setAttribute("data-clickmenuopened", 'true')
-        menu.setAttribute("data-whichdiv", e.target.id)
+        menu.setAttribute("data-whichdiv", self.id)
 
         const carouselMenuElement = menu.querySelector('.carouselmenu');
         
@@ -754,8 +787,68 @@ function Editor() {
 
     // carousel menu clicked
     function carouselMenuGotClicked(e){
+        console.log('e.target: ', e.target)
+        e.preventDefault()
         let optionmenu = e.target.parentElement
         optionmenu.style.display = "none"
+
+        let whatMode = e.target.getAttribute("data-what-mode")
+        if(whatMode == "edit"){
+            console.log('edit carousel clicked')
+            let editableDivId = e.target.getAttribute("data-editableDivId")
+            let editableDiv = document.getElementById(editableDivId)
+
+            let totalCarousel = parseInt(editableDiv.getAttribute("data-total-carousel"))
+            let carouselTitle = editableDiv.getAttribute("data-carousel-title")
+            let carouselDescription = editableDiv.getAttribute("data-carousel-description")
+            let carouselImage = editableDiv.getAttribute("data-carousel-image")
+
+            let sidebarBody = document.querySelector(".offcanvas-body")
+
+            console.log('carouselImage: ', carouselImage)
+            for(let i=0; i<totalCarousel; i++){
+                // console.log('carouselImage inside loop: ', carouselImage[i])
+                
+
+
+                let el = sliderElement(editableDivId)
+                console.log('el: ', el)
+
+                let el_parent_id = el.getAttribute("data-sliderparent")
+
+                let imgTag = el.querySelector(`[data-sliderimage="${el_parent_id}"]`)
+                imgTag.src = totalCarousel > 1 ? carouselImage.split(",")[i] : carouselImage
+
+                let titleInput = el.querySelector(`[data-slidertitle="${el_parent_id}"]`)
+                titleInput.value = totalCarousel > 1 ? carouselTitle.split(",")[i] : carouselTitle
+                // titleInput.value = carouselTitle[i]
+
+                let description = el.querySelector(`[data-sliderdescription="${el_parent_id}"]`)
+                description.value = totalCarousel > 1 ? carouselDescription.split(",")[i] : carouselDescription
+                // description.value = carouselDescription[i]
+
+                sidebarBody.insertBefore(el, sidebarBody.lastChild)
+            }
+            
+            // let el = sliderElement(editableDivId)
+
+            // console.log('slider element: ', el);
+
+            // sidebarBody.insertBefore(el, sidebarBody.lastChild)
+        }
+    }
+
+    // sidebar close button clicked
+    function sideBarCloseButtonClicked(e){
+        let sidebarBody = document.querySelector(".offcanvas-body")
+        // remove child elements inside sidebarBody except last child
+        while (sidebarBody.firstChild) {
+            if (sidebarBody.firstChild != sidebarBody.lastChild) {
+                sidebarBody.removeChild(sidebarBody.firstChild);
+            } else {
+                break;
+            }
+        }
     }
 
   return (
@@ -820,12 +913,12 @@ function Editor() {
           <div className="offcanvas offcanvas-start" data-bs-backdrop="static" tabIndex="-1" id="staticBackdrop" aria-labelledby="staticBackdropLabel">
               <div className="offcanvas-header">
                   <h5 className="offcanvas-title" id="staticBackdropLabel">Offcanvas</h5>
-                  <button id='sidebarclosebutton' type="button" className="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                  <button onClick={sideBarCloseButtonClicked} id='sidebarclosebutton' type="button" className="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
               </div>
               <div className="offcanvas-body">
                   <div className="my-3">
                       <button onClick={addSlider} className='btn btn-primary'>Add Slider</button>
-                      <button id='imageslidersubmitbutton' data-tempid="" onClick={submitSlider} className='ms-3 btn btn-success'>Submit</button>
+                      <button id='imageslidersubmitbutton' data-mode="normal" data-tempid="" onClick={submitSlider} className='ms-3 btn btn-success'>Submit</button>
                   </div>
               </div>
           </div>
@@ -854,8 +947,11 @@ function Editor() {
 
         {/* right clicked options */}
           <div id='rightoptionmenu' data-clickmenuopened='false' data-whichdiv="" className={styles.rightOptionMain}>
-            <div id='carouselOptionDiv' onClick={carouselMenuGotClicked} className='carouselmenu' data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop">create Carousel</div>
+
+            <div id='carouselOptionDiv' onClick={carouselMenuGotClicked} data-what-mode="normal" className='carouselmenu' data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop">create Carousel</div>
+
             <div id='deleteOptionDiv' onClick={deleteEditableDiv}>Delete</div>
+
             <div>hello 3</div>
             <div>hello 4</div>
             <div>hello 5</div>
