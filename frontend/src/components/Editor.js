@@ -113,6 +113,7 @@ function Editor() {
 
         let div = document.createElement("div");
         div.setAttribute("contentEditable", true);
+        div.setAttribute("data-what-it-became", "nothing")
         div.classList.add("border");
         div.classList.add("border-secondary");
         div.classList.add(styles.editablediv);
@@ -453,10 +454,10 @@ function Editor() {
         let menu = document.getElementById("rightoptionmenu")
         let idOfThatEditableDiv = menu.getAttribute("data-whichdiv") //trying to get id of the editable div: will set this id in each element of the slider like image, title, description: later helps to find & connect two of them i.e. all the slider items belongings to that editable div.
 
-        let canva = document.querySelector(".offcanvas-body")
+        let sidebarBody = document.querySelector(".offcanvas-body")
         let el = sliderElement(idOfThatEditableDiv)
 
-        canva.insertBefore(el, canva.lastChild)
+        sidebarBody.insertBefore(el, sidebarBody.lastChild)
     }
 
     // slider element
@@ -573,7 +574,28 @@ function Editor() {
 
         let carouselElementDiv = carouselElement(count, imageSource, carouselTitle, carouselDescription);
 
+        editableDiv.removeAttribute("contentEditable")
         editableDiv.append(carouselElementDiv)
+        editableDiv.setAttribute("data-what-it-became", "carousel")
+
+        // storing information of carousels in an editable div
+        editableDiv.setAttribute("data-total-carousel", count)
+        editableDiv.setAttribute("data-carousel-title", carouselTitle)
+        editableDiv.setAttribute("data-carousel-description", carouselDescription)
+        editableDiv.setAttribute("data-carousel-image", imageSource)
+
+        let sidebarBody = document.querySelector(".offcanvas-body")
+        // remove child elements inside sidebarBody except last child
+        while (sidebarBody.firstChild) {
+            if(sidebarBody.firstChild != sidebarBody.lastChild){
+                sidebarBody.removeChild(sidebarBody.firstChild);
+            }else{
+                break;
+            }
+        }
+
+        let sidebarClose = document.getElementById("sidebarclosebutton")
+        sidebarClose.click()
         
 
         console.log('id of editableDiv: ', idOfThatEditableDiv)
@@ -581,11 +603,9 @@ function Editor() {
         console.log('the end')
     }
 
-
-
     // carousel element
     function carouselElement(nth, imageSrc, title, description){
-        let id = parseInt(Math.random()*999999999999999);
+        let id = 'carousel'+parseInt(Math.random()*999999999999999)+'id';
         let mainDiv = document.createElement("div");
         mainDiv.id = id;
         mainDiv.classList.add("carousel")
@@ -602,7 +622,7 @@ function Editor() {
             let indicatorButton = document.createElement("button");
             indicatorButton.setAttribute("type", "button");
             indicatorButton.setAttribute("data-bs-target", `#${id}`);
-            indicatorButton.setAttribute("data-bs-slide-to", `#${i}`);
+            indicatorButton.setAttribute("data-bs-slide-to", `${i}`);
             indicatorButton.setAttribute("aria-current", `true`);
             indicatorButton.setAttribute("aria-label", `Slide ${i+1}`);
             if(i == 0){
@@ -689,15 +709,16 @@ function Editor() {
         nextButtonSpan2.textContent = "Next"
         nextButton.appendChild(nextButtonSpan2)
 
-        let mainDivSpace = document.createElement("span")
-        mainDivSpace.innerHTML = "&nbsp;"
-        mainDiv.appendChild(mainDivSpace)
+        // let mainDivSpace = document.createElement("span")
+        // mainDivSpace.innerHTML = "&nbsp;"
+        // mainDiv.appendChild(mainDivSpace)
 
         return mainDiv
     }
 
     // main editable div Right Clicked
     function rightClickedEditableDiv(e){
+
         e.preventDefault()
         const mouseX = e.clientX;
         const mouseY = e.clientY;
@@ -788,7 +809,7 @@ function Editor() {
 
         {/* editor */}
         <div className={'border border-secondary ' + styles.main } id='mainDiv'>
-            <div id={parseInt(Math.random() * 999999999999999)} onContextMenu={rightClickedEditableDiv} contentEditable className={'border border-secondary editabledivblock '+styles.editablediv}></div>
+            <div id={parseInt(Math.random() * 999999999999999)} onContextMenu={rightClickedEditableDiv} contentEditable data-what-it-became="nothing" className={'border border-secondary editabledivblock '+styles.editablediv}></div>
         </div>
 
         {/* add more button */}
@@ -799,7 +820,7 @@ function Editor() {
           <div className="offcanvas offcanvas-start" data-bs-backdrop="static" tabIndex="-1" id="staticBackdrop" aria-labelledby="staticBackdropLabel">
               <div className="offcanvas-header">
                   <h5 className="offcanvas-title" id="staticBackdropLabel">Offcanvas</h5>
-                  <button type="button" className="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                  <button id='sidebarclosebutton' type="button" className="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
               </div>
               <div className="offcanvas-body">
                   <div className="my-3">
@@ -833,15 +854,15 @@ function Editor() {
 
         {/* right clicked options */}
           <div id='rightoptionmenu' data-clickmenuopened='false' data-whichdiv="" className={styles.rightOptionMain}>
-            <div onClick={carouselMenuGotClicked} className='carouselmenu' data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop">Carousel</div>
-            <div onClick={deleteEditableDiv}>Delete</div>
+            <div id='carouselOptionDiv' onClick={carouselMenuGotClicked} className='carouselmenu' data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop">create Carousel</div>
+            <div id='deleteOptionDiv' onClick={deleteEditableDiv}>Delete</div>
             <div>hello 3</div>
             <div>hello 4</div>
             <div>hello 5</div>
         </div>
 
         {/* carousel */}
-          <div id="carouselSection" className="carousel carousel-dark slide" data-bs-ride="carousel">
+          {/* <div id="carouselSection" className="carousel carousel-dark slide" data-bs-ride="carousel">
               <div className="carousel-indicators">
                   <button type="button" data-bs-target="#carouselSection" data-bs-slide-to="0" className="active" aria-current="true" aria-label="Slide 1"></button>
                   <button type="button" data-bs-target="#carouselSection" data-bs-slide-to="1" aria-label="Slide 2"></button>
@@ -884,7 +905,7 @@ function Editor() {
                   <span className="carousel-control-next-icon" aria-hidden="true"></span>
                   <span className="visually-hidden">Next</span>
               </button>
-          </div>
+          </div> */}
 
             <br></br>
           <div className="m-3"></div>
