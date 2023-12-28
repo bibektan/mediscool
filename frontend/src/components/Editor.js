@@ -114,8 +114,11 @@ function Editor() {
         let div = document.createElement("div");
         div.setAttribute("contentEditable", true);
         div.setAttribute("data-what-it-became", "nothing")
+        div.setAttribute("data-mode", "edit")
+        div.setAttribute("data-contentBox", true)
         div.classList.add("border");
         div.classList.add("border-secondary");
+        div.classList.add("editabledivblock");
         div.classList.add(styles.editablediv);
         div.id = parseInt(Math.random()*999999999999999)
 
@@ -738,8 +741,9 @@ function Editor() {
         // e.currentTarget is the element that the event listener is attached to.
         let self = e.currentTarget
         let whatItBecame = self.getAttribute("data-what-it-became")
+        console.log('whatItBecame', whatItBecame)
 
-        if (whatItBecame == "carousel") {
+        if (whatItBecame === "carousel") {
             let carouselOption = document.getElementById("carouselOptionDiv")
             carouselOption.textContent = "Edit Carousel"
             carouselOption.setAttribute("data-what-mode", "edit")
@@ -751,6 +755,13 @@ function Editor() {
 
             let deleteOption = document.getElementById("deleteOptionDiv")
             deleteOption.textContent = "Delete Carousel"
+        }else{
+            let carouselOption = document.getElementById("carouselOptionDiv")
+            carouselOption.textContent = "create Carousel"
+            carouselOption.setAttribute("data-what-mode", "normal")
+
+            let deleteOption = document.getElementById("deleteOptionDiv")
+            deleteOption.textContent = "Delete"
         }
 
         const mouseX = e.clientX;
@@ -851,6 +862,34 @@ function Editor() {
         }
     }
 
+    // save editable div
+    function savedEditableDiv() {
+        let mainDiv = document.getElementById("mainDiv");
+        let lastdiv = document.querySelector(".lastdiv");
+
+        let fetchedData = mainDiv.innerHTML.toString()
+        lastdiv.innerHTML = fetchedData
+        // console.log(fetchedData)
+        // let allEditableDiv = document.querySelectorAll(".editabledivblock");
+        // allEditableDiv.forEach((el) => {
+        //     // Create a copy of the element
+        //     // let elCopy = el.cloneNode(true);
+        //     let elCopy = el;
+
+        //     // Modify the properties of the copied element
+        //     // elCopy.setAttribute("contentEditable", false);
+        //     // elCopy.setAttribute("data-mode", "saved");
+        //     // elCopy.classList.remove(styles.editablediv);
+        //     // elCopy.classList.add(styles.savedEditableDiv);
+        //     // elCopy.classList.remove("border");
+        //     // elCopy.classList.remove("border-secondary");
+
+        //     console.log(elCopy.innerHTML.toString())
+        //     // Append the copy of el to lastdiv
+        //     // lastdiv.append(elCopy);
+        // });
+    }
+
   return (
     <div>
         {/* feature */}
@@ -902,11 +941,12 @@ function Editor() {
 
         {/* editor */}
         <div className={'border border-secondary ' + styles.main } id='mainDiv'>
-            <div id={parseInt(Math.random() * 999999999999999)} onContextMenu={rightClickedEditableDiv} contentEditable data-what-it-became="nothing" className={'border border-secondary editabledivblock '+styles.editablediv}></div>
+            <div id={parseInt(Math.random() * 999999999999999)} data-contentBox onContextMenu={rightClickedEditableDiv} contentEditable data-what-it-became="nothing" data-mode="edit" className={'border border-secondary editabledivblock '+styles.editablediv}></div>
         </div>
 
         {/* add more button */}
         <button onClick={addEditableDiv} className={'btn btn-primary ' + styles.addButton}>Add</button>
+        <button onClick={savedEditableDiv} className={'btn btn-success m-3 ' + styles.addButton}>Save</button>
 
 
         {/* SideBar */}
@@ -951,60 +991,10 @@ function Editor() {
             <div id='carouselOptionDiv' onClick={carouselMenuGotClicked} data-what-mode="normal" className='carouselmenu' data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop">create Carousel</div>
 
             <div id='deleteOptionDiv' onClick={deleteEditableDiv}>Delete</div>
-
-            <div>hello 3</div>
-            <div>hello 4</div>
-            <div>hello 5</div>
         </div>
 
-        {/* carousel */}
-          {/* <div id="carouselSection" className="carousel carousel-dark slide" data-bs-ride="carousel">
-              <div className="carousel-indicators">
-                  <button type="button" data-bs-target="#carouselSection" data-bs-slide-to="0" className="active" aria-current="true" aria-label="Slide 1"></button>
-                  <button type="button" data-bs-target="#carouselSection" data-bs-slide-to="1" aria-label="Slide 2"></button>
-                  <button type="button" data-bs-target="#carouselSection" data-bs-slide-to="2" aria-label="Slide 3"></button>
-              </div>
-              <div className="carousel-inner">
-                  <div className="carousel-item active" data-bs-interval="2000">
-                    <div className={styles.carouselImgDiv}>
-                          <img src="https://3.bp.blogspot.com/-eOR0aaChxAw/UR-VGiVnp1I/AAAAAAAABnM/_bIC8_EisxQ/s1600/image-slider-2.jpg" className={styles.carouselImg} alt="first" />
-                    </div>
-                    <div className={"carousel-caption text-white d-none d-md-block "}>
-                        <h5>First slide label</h5>
-                        <p>Some representative placeholder content for the first slide.</p>
-                    </div>
-                  </div>
-                  <div className="carousel-item" data-bs-interval="2000">
-                      <div className={styles.carouselImgDiv}>
-                        <img src="https://cssslider.com/sliders/demo-34/data1/images/chicago690364_1280.jpg" className={styles.carouselImg} alt="first" />
-                        </div>
-                      <div className={"carousel-caption text-white d-none d-md-block "}>
-                        <h5>First slide label</h5>
-                        <p>Some representative placeholder content for the first slide.</p>
-                    </div>
-                  </div>
-                  <div className="carousel-item" data-bs-interval="2000">
-                    <div className={styles.carouselImgDiv}>
-                        <img src={process.env.PUBLIC_URL + '/abc.jpg'} className={styles.carouselImg} alt="first" />
-                    </div>
-                    <div className={"carousel-caption text-white d-none d-md-block "}>
-                        <h5>First slide label</h5>
-                        <p>Some representative placeholder content for the first slide.</p>
-                    </div>
-                  </div>
-              </div>
-              <button className="carousel-control-prev" type="button" data-bs-target="#carouselSection" data-bs-slide="prev">
-                  <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                  <span className="visually-hidden">Previous</span>
-              </button>
-              <button className="carousel-control-next" type="button" data-bs-target="#carouselSection" data-bs-slide="next">
-                  <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                  <span className="visually-hidden">Next</span>
-              </button>
-          </div> */}
-
-            <br></br>
-          <div className="m-3"></div>
+        <br></br>
+        <div className="m-3 lastdiv"></div>
 
     </div>
   )

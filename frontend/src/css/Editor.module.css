@@ -16,6 +16,16 @@
     position: relative;
 }
 
+.savedEditableDiv{
+    width: 100%;
+    margin: 9px 0px;
+    /* padding: 12px 9px; */
+    font-size: 27px;
+    /* position: relative; */
+    /* border: 1px solid grey;
+    border-radius: 5px; */
+}
+
 /* .editablediv::before{
     content: '';
     position: absolute;
