@@ -123,7 +123,6 @@ function Editor() {
 
         });
         
-
         const editableDiv = document.querySelector('.editabledivblock');
 
         // Focus the editable div element.
@@ -475,7 +474,21 @@ function Editor() {
             let quizExplainButton = document.createElement("button")
             quizExplainButton.classList.add("btn")
             quizExplainButton.classList.add("btn-outline-info")
+
+            quizExplainButton.setAttribute("type", "button")
+            quizExplainButton.setAttribute("data-bs-toggle", "modal")
+            quizExplainButton.setAttribute("data-bs-target", "#exampleModal")
+            quizExplainButton.setAttribute("title", "hello this is title")
+            quizExplainButton.setAttribute("body", "this is body paragraph")
+
             quizExplainButton.textContent = "Explanation"
+
+            // listening click event to pass the title and body content
+            quizExplainButton.addEventListener("click", (e) => {
+                setCurrentPopupElement(prev => quizExplainButton)
+                setTitle(prev => e.target.getAttribute('title'))
+                setBody(prev => e.target.getAttribute("body"))
+            })
 
             quizExplainDiv.append(quizExplainButton)
 
