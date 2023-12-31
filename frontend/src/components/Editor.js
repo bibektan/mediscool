@@ -62,16 +62,56 @@ function Editor() {
         // for keyboard
         window.addEventListener('keydown', handleKeyDown);
 
-        // for mouse click
+        // for mouse right click
+        window.addEventListener('contextmenu', (e) => {
+            // e.preventDefault()
+            e.stopPropagation()
+            e.stopImmediatePropagation()
+            console.log('right clicked')
+
+            // let rightClickEvent = document.querySelectorAll('[data-rightclickevent]')
+
+            // if(e.target.getAttribute("data-database-mode") === "saved"){
+            //     if(rightClickEvent.length > 0){
+            //         for (let index = 0; index < rightClickEvent.length; index++) {
+            //             const element = rightClickEvent[index];
+            //             if(element.contains(e.target)){
+            //                 let event = element.getAttribute("data-rightclickevent")
+            //                 eval(event)(e)
+            //             }
+            //         }
+            //     }
+            // }
+
+        });
+
+        // for mouse left click
         window.addEventListener('click', (e)=>{
-            // console.log('clicked')
+            // e.preventDefault()
+            e.stopPropagation()
+            e.stopImmediatePropagation()
+
+            console.log('clicked')
 
             let curr_opened_menu = document.querySelectorAll('[data-clickmenuopened="true"]')
+            let leftClickEvent = document.querySelectorAll('[data-leftclickevent]')
 
-            if(curr_opened_menu.length > 0){
+            if (e.target.getAttribute("data-database-mode") === "saved") {
+                if (leftClickEvent.length > 0) {
+                    for (let index = 0; index < leftClickEvent.length; index++) {
+                        const element = leftClickEvent[index];
+                        if (element.contains(e.target)) {
+                            let event = element.getAttribute("data-leftclickevent")
+                            eval(event)(e)
+                        }
+                    }
+                }
+            }
+
+            if (curr_opened_menu.length > 0) {
                 for (let index = 0; index < curr_opened_menu.length; index++) {
                     const element = curr_opened_menu[index];
-                    if(element.contains(e.target)){
+                    if (element.contains(e.target)) {
                         // console.log('Clicked within myElement or its descendants');
                     } else {
                         // console.log('Clicked outside myElement');
@@ -81,24 +121,13 @@ function Editor() {
                 }
             }
 
-        })
+        });
+        
 
         const editableDiv = document.querySelector('.editabledivblock');
 
-        // Create an input event object.
-        // const inputEvent = new Event('input');
-
         // Focus the editable div element.
         editableDiv.focus();
-
-        // Enable the editable div element.
-        // editableDiv.disabled = false;
-
-        // Make the editable div element visible.
-        // editableDiv.style.display = 'block';
-
-        // Dispatch the input event to the editable div.
-        // editableDiv.dispatchEvent(inputEvent);
 
         // Add an input event listener to the editable div.
         editableDiv.addEventListener('input', (e) => {
@@ -115,7 +144,7 @@ function Editor() {
         div.setAttribute("contentEditable", true);
         div.setAttribute("data-what-it-became", "nothing")
         div.setAttribute("data-mode", "edit")
-        div.setAttribute("data-contentBox", true)
+        div.setAttribute("data-contentbox", true)
         div.classList.add("border");
         div.classList.add("border-secondary");
         div.classList.add("editabledivblock");
@@ -259,6 +288,9 @@ function Editor() {
     }
 
     function quizOptionButtonClicked(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
         let ans = e.target.getAttribute("answer")
         let alert_type = null
         if(ans == 'yes'){
@@ -283,6 +315,15 @@ function Editor() {
                 alertDiv.remove()
             }, 1000)
         }
+    }
+
+    function quizRightClicked(e){
+        e.preventDefault()
+        e.stopPropagation();
+
+        QuizAnswer("Is this an correct Answer \n 'yes' or 'no'", e.target.getAttribute("answer"), (ans) => {
+            e.target.setAttribute("answer", ans)
+        })
     }
 
     function quiz(){
@@ -314,6 +355,9 @@ function Editor() {
 
             // first option
             let quizOptionFirst = document.createElement("div")
+            quizOptionFirst.setAttribute("data-leftClickEvent", "quizOptionButtonClicked")
+            quizOptionFirst.setAttribute("data-rightClickEvent", "quizRightClicked")
+            quizOptionFirst.setAttribute("data-database-mode", "edit")
             quizOptionFirst.setAttribute("answer", "no")
             quizOptionFirst.setAttribute("type", "button")
             quizOptionFirst.setAttribute("contentEditable", "true")
@@ -324,18 +368,23 @@ function Editor() {
 
             quizOptionFirst.addEventListener("contextmenu", (e)=>{
                 e.preventDefault()
+                e.stopPropagation()
+                quizRightClicked(e)
 
-                QuizAnswer("Is this an correct Answer \n 'yes' or 'no'", e.target.getAttribute("answer") , (ans)=>{
-                    e.target.setAttribute("answer", ans)
-                })
             })
 
             quizOptionFirst.addEventListener("click", (e)=>{
+                e.preventDefault()
+                e.stopPropagation()
                 quizOptionButtonClicked(e)
+
             })
 
             // second option
             let quizOptionSecond = document.createElement("div")
+            quizOptionSecond.setAttribute("data-leftClickEvent", "quizOptionButtonClicked")
+            quizOptionSecond.setAttribute("data-rightClickEvent", "quizRightClicked")
+            quizOptionSecond.setAttribute("data-database-mode", "edit")
             quizOptionSecond.setAttribute("type", "button")
             quizOptionSecond.setAttribute("answer", "no")
             quizOptionSecond.setAttribute("contentEditable", "true")
@@ -346,19 +395,24 @@ function Editor() {
 
             quizOptionSecond.addEventListener("contextmenu", (e) => {
                 e.preventDefault()
+                e.stopPropagation();
+                quizRightClicked(e)
 
-                QuizAnswer("Is this an correct Answer \n 'yes' or 'no'", e.target.getAttribute("answer"), (ans) => {
-                    e.target.setAttribute("answer", ans)
-                })
             })
 
             quizOptionSecond.addEventListener("click", (e) => {
+                e.preventDefault()
+                e.stopPropagation()
                 quizOptionButtonClicked(e)
+
             })
 
 
             // third option
             let quizOptionThird = document.createElement("div")
+            quizOptionThird.setAttribute("data-leftClickEvent", "quizOptionButtonClicked")
+            quizOptionThird.setAttribute("data-rightClickEvent", "quizRightClicked")
+            quizOptionThird.setAttribute("data-database-mode", "edit")
             quizOptionThird.setAttribute("type", "button")
             quizOptionThird.setAttribute("answer", "no")
             quizOptionThird.setAttribute("contentEditable", "true")
@@ -369,19 +423,24 @@ function Editor() {
 
             quizOptionThird.addEventListener("contextmenu", (e) => {
                 e.preventDefault()
+                e.stopPropagation();
+                quizRightClicked(e)
 
-                QuizAnswer("Is this an correct Answer \n 'yes' or 'no'", e.target.getAttribute("answer"), (ans) => {
-                    e.target.setAttribute("answer", ans)
-                })
             })
 
             quizOptionThird.addEventListener("click", (e) => {
+                e.preventDefault()
+                e.stopPropagation()
                 quizOptionButtonClicked(e)
+
             })
 
 
             // fourth option
             let quizOptionFourth = document.createElement("div")
+            quizOptionFourth.setAttribute("data-leftClickEvent", "quizOptionButtonClicked")
+            quizOptionFourth.setAttribute("data-rightClickEvent", "quizRightClicked")
+            quizOptionFourth.setAttribute("data-database-mode", "edit")
             quizOptionFourth.setAttribute("type", "button")
             quizOptionFourth.setAttribute("answer", "no")
             quizOptionFourth.setAttribute("contentEditable", "true")
@@ -392,14 +451,16 @@ function Editor() {
             
             quizOptionFourth.addEventListener("contextmenu", (e) => {
                 e.preventDefault()
+                e.stopPropagation();
+                quizRightClicked(e)
 
-                QuizAnswer("Is this an correct Answer \n 'yes' or 'no'", e.target.getAttribute("answer"), (ans) => {
-                    e.target.setAttribute("answer", ans)
-                })
             })
 
             quizOptionFourth.addEventListener("click", (e) => {
+                e.preventDefault()
+                e.stopPropagation()
                 quizOptionButtonClicked(e)
+
             })
 
 
@@ -408,6 +469,7 @@ function Editor() {
             quizCard.append(gap)
             quizCard.append(hr)
 
+            // TODO: make quiz explanation working
             let quizExplainDiv = document.createElement("div")
             quizExplainDiv.setAttribute("contentEditable", true)
             let quizExplainButton = document.createElement("button")
@@ -796,6 +858,8 @@ function Editor() {
         optionmenu.style.display = "none"
     }
 
+    // arr[i][index] remove it. 
+
     // carousel menu clicked
     function carouselMenuGotClicked(e){
         console.log('e.target: ', e.target)
@@ -804,6 +868,7 @@ function Editor() {
         optionmenu.style.display = "none"
 
         let whatMode = e.target.getAttribute("data-what-mode")
+
         if(whatMode == "edit"){
             console.log('edit carousel clicked')
             let editableDivId = e.target.getAttribute("data-editableDivId")
@@ -867,26 +932,34 @@ function Editor() {
         let mainDiv = document.getElementById("mainDiv");
         let lastdiv = document.querySelector(".lastdiv");
 
+        let getAllDatabaseMode = document.querySelectorAll("[data-database-mode]")
+        getAllDatabaseMode.forEach((el) => {
+            el.setAttribute("data-database-mode", "saved")
+        })
+
         let fetchedData = mainDiv.innerHTML.toString()
         lastdiv.innerHTML = fetchedData
+
+
+
         // console.log(fetchedData)
         // let allEditableDiv = document.querySelectorAll(".editabledivblock");
         // allEditableDiv.forEach((el) => {
         //     // Create a copy of the element
-        //     // let elCopy = el.cloneNode(true);
-        //     let elCopy = el;
+        //     let elCopy = el.cloneNode(true);
+        //     // let elCopy = el;
 
         //     // Modify the properties of the copied element
-        //     // elCopy.setAttribute("contentEditable", false);
-        //     // elCopy.setAttribute("data-mode", "saved");
-        //     // elCopy.classList.remove(styles.editablediv);
-        //     // elCopy.classList.add(styles.savedEditableDiv);
-        //     // elCopy.classList.remove("border");
-        //     // elCopy.classList.remove("border-secondary");
+        //     elCopy.setAttribute("contentEditable", false);
+        //     elCopy.setAttribute("data-mode", "saved");
+        //     elCopy.classList.remove(styles.editablediv);
+        //     elCopy.classList.add(styles.savedEditableDiv);
+        //     elCopy.classList.remove("border");
+        //     elCopy.classList.remove("border-secondary");
 
-        //     console.log(elCopy.innerHTML.toString())
+        //     // console.log(elCopy.innerHTML.toString())
         //     // Append the copy of el to lastdiv
-        //     // lastdiv.append(elCopy);
+        //     lastdiv.append(elCopy);
         // });
     }
 
@@ -941,7 +1014,7 @@ function Editor() {
 
         {/* editor */}
         <div className={'border border-secondary ' + styles.main } id='mainDiv'>
-            <div id={parseInt(Math.random() * 999999999999999)} data-contentBox onContextMenu={rightClickedEditableDiv} contentEditable data-what-it-became="nothing" data-mode="edit" className={'border border-secondary editabledivblock '+styles.editablediv}></div>
+            <div id={parseInt(Math.random() * 999999999999999)} data-contentbox onContextMenu={rightClickedEditableDiv} contentEditable data-what-it-became="nothing" data-mode="edit" className={'border border-secondary editabledivblock '+styles.editablediv}></div>
         </div>
 
         {/* add more button */}
