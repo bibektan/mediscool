@@ -171,6 +171,9 @@ function Editor() {
             popup.classList.add("btn")
             popup.classList.add("btn-danger")
 
+            popup.setAttribute("data-database-mode", "edit")
+            popup.setAttribute("data-leftClickEvent", "modalForSavedPopupButton")
+
             popup.setAttribute("type", "button")
             popup.setAttribute("data-bs-toggle", "modal")
             popup.setAttribute("data-bs-target", "#exampleModal")
@@ -191,7 +194,8 @@ function Editor() {
 
         // listening click event to pass the title and body content
         popup.addEventListener("click", (e)=>{
-            setCurrentPopupElement(prev => popup)
+            console.log('popup button clicked')
+            setCurrentPopupElement(prev => e.target)
             setTitle(prev => e.target.getAttribute('title'))
             setBody(prev=>e.target.getAttribute("body"))
         })
@@ -265,6 +269,7 @@ function Editor() {
     // for popup
     function editableValue(e, type){
         if(type == 'title'){
+            console.log('from editableValue: ', e.target)
             var changedTitle = e.target.innerHTML
             // console.log(e.target.innerHTML)
             // console.log(currentpopupelement)
@@ -462,13 +467,10 @@ function Editor() {
 
             })
 
-
-
             quizCard.append(quizOptionsDiv)
             quizCard.append(gap)
             quizCard.append(hr)
 
-            // TODO: make quiz explanation working
             let quizExplainDiv = document.createElement("div")
             quizExplainDiv.setAttribute("contentEditable", true)
             let quizExplainButton = document.createElement("button")
@@ -943,37 +945,39 @@ function Editor() {
     // save editable div
     function savedEditableDiv() {
         let mainDiv = document.getElementById("mainDiv");
+        let mainDivCopy = mainDiv.cloneNode(true);
         let lastdiv = document.querySelector(".lastdiv");
 
-        let getAllDatabaseMode = document.querySelectorAll("[data-database-mode]")
+        let getAllDatabaseMode = mainDivCopy.querySelectorAll("[data-database-mode]")
         getAllDatabaseMode.forEach((el) => {
             el.setAttribute("data-database-mode", "saved")
         })
 
-        let fetchedData = mainDiv.innerHTML.toString()
+        let getAllContentEditable = mainDivCopy.querySelectorAll("[contentEditable]")
+        getAllContentEditable.forEach((el) => {
+            el.setAttribute("contentEditable", false)
+        })
+
+        let fetchedData = mainDivCopy.innerHTML.toString()
+
+        // remove all the child from lastdiv
+        while (lastdiv.firstChild) {
+            lastdiv.removeChild(lastdiv.firstChild);
+        }
+    
         lastdiv.innerHTML = fetchedData
+    }
 
+    // modal for saved popup button
+    function modalForSavedPopupButton(e){
+        let title = e.target.getAttribute("title")
+        let body = e.target.getAttribute("body")
 
+        let modalTitle = document.querySelector(".modal-title")
+        let modalBody = document.querySelector(".modal-body")
 
-        // console.log(fetchedData)
-        // let allEditableDiv = document.querySelectorAll(".editabledivblock");
-        // allEditableDiv.forEach((el) => {
-        //     // Create a copy of the element
-        //     let elCopy = el.cloneNode(true);
-        //     // let elCopy = el;
-
-        //     // Modify the properties of the copied element
-        //     elCopy.setAttribute("contentEditable", false);
-        //     elCopy.setAttribute("data-mode", "saved");
-        //     elCopy.classList.remove(styles.editablediv);
-        //     elCopy.classList.add(styles.savedEditableDiv);
-        //     elCopy.classList.remove("border");
-        //     elCopy.classList.remove("border-secondary");
-
-        //     // console.log(elCopy.innerHTML.toString())
-        //     // Append the copy of el to lastdiv
-        //     lastdiv.append(elCopy);
-        // });
+        modalTitle.innerHTML = title
+        modalBody.innerHTML = body
     }
 
   return (
@@ -1002,7 +1006,7 @@ function Editor() {
 
             {/* popup */}
             <div className="btn-group ">
-                <button onClick={()=>makePopup('info')} type="button" className="btn btn-secondary">popup</button>
+                <button onClick={()=>makePopup('button')} type="button" className="btn btn-secondary">popup</button>
                 <button type="button" className="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                     <span className="visually-hidden">Toggle Dropdown</span>
                 </button>
