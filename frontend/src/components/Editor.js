@@ -71,7 +71,7 @@ function Editor() {
 
             // let rightClickEvent = document.querySelectorAll('[data-rightclickevent]')
 
-            // if(e.target.getAttribute("data-database-mode") === "saved"){
+            // if(e.target.getAttribute("data-editable-or-non-editable-mode") === "noneditable"){
             //     if(rightClickEvent.length > 0){
             //         for (let index = 0; index < rightClickEvent.length; index++) {
             //             const element = rightClickEvent[index];
@@ -87,16 +87,23 @@ function Editor() {
 
         // for mouse left click
         window.addEventListener('click', (e)=>{
-            // e.preventDefault()
             e.stopPropagation()
             e.stopImmediatePropagation()
 
             console.log('clicked')
+            console.log(e.target)
+            if (e.target.getAttribute("data-has-function")) {
+                console.log('it has function')
+                let event = e.target.getAttribute("data-has-function")
+                eval(event)(e)
+            } else {
+                console.log('it does not have function')
+            }
 
             let curr_opened_menu = document.querySelectorAll('[data-clickmenuopened="true"]')
             let leftClickEvent = document.querySelectorAll('[data-leftclickevent]')
 
-            if (e.target.getAttribute("data-database-mode") === "saved") {
+            if (e.target.getAttribute("data-editable-or-non-editable-mode") === "noneditable") {
                 if (leftClickEvent.length > 0) {
                     for (let index = 0; index < leftClickEvent.length; index++) {
                         const element = leftClickEvent[index];
@@ -171,7 +178,8 @@ function Editor() {
             popup.classList.add("btn")
             popup.classList.add("btn-danger")
 
-            popup.setAttribute("data-database-mode", "edit")
+            // data-editable-or-non-editable-mode has two values: editable and noneditable
+            popup.setAttribute("data-editable-or-non-editable-mode", "edit")
             popup.setAttribute("data-leftClickEvent", "modalForSavedPopupButton")
 
             popup.setAttribute("type", "button")
@@ -361,7 +369,7 @@ function Editor() {
             let quizOptionFirst = document.createElement("div")
             quizOptionFirst.setAttribute("data-leftClickEvent", "quizOptionButtonClicked")
             quizOptionFirst.setAttribute("data-rightClickEvent", "quizRightClicked")
-            quizOptionFirst.setAttribute("data-database-mode", "edit")
+            quizOptionFirst.setAttribute("data-editable-or-non-editable-mode", "edit")
             quizOptionFirst.setAttribute("answer", "no")
             quizOptionFirst.setAttribute("type", "button")
             quizOptionFirst.setAttribute("contentEditable", "true")
@@ -388,7 +396,7 @@ function Editor() {
             let quizOptionSecond = document.createElement("div")
             quizOptionSecond.setAttribute("data-leftClickEvent", "quizOptionButtonClicked")
             quizOptionSecond.setAttribute("data-rightClickEvent", "quizRightClicked")
-            quizOptionSecond.setAttribute("data-database-mode", "edit")
+            quizOptionSecond.setAttribute("data-editable-or-non-editable-mode", "edit")
             quizOptionSecond.setAttribute("type", "button")
             quizOptionSecond.setAttribute("answer", "no")
             quizOptionSecond.setAttribute("contentEditable", "true")
@@ -416,7 +424,7 @@ function Editor() {
             let quizOptionThird = document.createElement("div")
             quizOptionThird.setAttribute("data-leftClickEvent", "quizOptionButtonClicked")
             quizOptionThird.setAttribute("data-rightClickEvent", "quizRightClicked")
-            quizOptionThird.setAttribute("data-database-mode", "edit")
+            quizOptionThird.setAttribute("data-editable-or-non-editable-mode", "edit")
             quizOptionThird.setAttribute("type", "button")
             quizOptionThird.setAttribute("answer", "no")
             quizOptionThird.setAttribute("contentEditable", "true")
@@ -444,7 +452,7 @@ function Editor() {
             let quizOptionFourth = document.createElement("div")
             quizOptionFourth.setAttribute("data-leftClickEvent", "quizOptionButtonClicked")
             quizOptionFourth.setAttribute("data-rightClickEvent", "quizRightClicked")
-            quizOptionFourth.setAttribute("data-database-mode", "edit")
+            quizOptionFourth.setAttribute("data-editable-or-non-editable-mode", "edit")
             quizOptionFourth.setAttribute("type", "button")
             quizOptionFourth.setAttribute("answer", "no")
             quizOptionFourth.setAttribute("contentEditable", "true")
@@ -473,24 +481,33 @@ function Editor() {
 
             let quizExplainDiv = document.createElement("div")
             quizExplainDiv.setAttribute("contentEditable", true)
+
             let quizExplainButton = document.createElement("button")
             quizExplainButton.classList.add("btn")
             quizExplainButton.classList.add("btn-outline-info")
 
             quizExplainButton.setAttribute("type", "button")
-            quizExplainButton.setAttribute("data-bs-toggle", "modal")
-            quizExplainButton.setAttribute("data-bs-target", "#exampleModal")
+
+            // triggering modal
+            // quizExplainButton.setAttribute("data-bs-toggle", "modal");
+            // quizExplainButton.setAttribute("data-bs-target", "#exampleModal");
+
+            // quizExplainButton.addEventListener("click", () => {
+            //     // Trigger the modal programmatically
+            //     let modal = new bootstrap.Modal(document.getElementById("exampleModal"));
+            //     modal.show();
+            // });
+
+            quizExplainButton.setAttribute("data-editable-or-non-editable-mode", "edit")
+            quizExplainButton.setAttribute("data-has-function", "quizExplanationButtonClicked")
+
             quizExplainButton.setAttribute("title", "hello this is title")
             quizExplainButton.setAttribute("body", "this is body paragraph")
 
             quizExplainButton.textContent = "Explanation"
 
             // listening click event to pass the title and body content
-            quizExplainButton.addEventListener("click", (e) => {
-                setCurrentPopupElement(prev => quizExplainButton)
-                setTitle(prev => e.target.getAttribute('title'))
-                setBody(prev => e.target.getAttribute("body"))
-            })
+            quizExplainButton.addEventListener("click", (e) => quizExplanationButtonClicked(e))
 
             quizExplainDiv.append(quizExplainButton)
 
@@ -504,6 +521,25 @@ function Editor() {
             range.insertNode(space)
             range.insertNode(quizCard)
         }
+    }
+
+    // quiz explanation button clicked
+    function quizExplanationButtonClicked(e){
+        setCurrentPopupElement(prev => e.target)
+        setTitle(prev => e.target.getAttribute('title'))
+        setBody(prev => e.target.getAttribute("body"))
+
+        let modal = new bootstrap.Modal(document.getElementById("exampleModal"));
+
+        if (e.target.getAttribute("data-editable-or-non-editable-mode") == "edit") {
+            let modalTitleDiv = document.getElementById("modalTitleDiv")
+            let modalBodyDiv = document.getElementById("modalBodyDiv")
+
+            modalTitleDiv.setAttribute("contentEditable", true)
+            modalBodyDiv.setAttribute("contentEditable", true)
+        }
+
+        modal.show();
     }
 
     // image slider
@@ -948,9 +984,9 @@ function Editor() {
         let mainDivCopy = mainDiv.cloneNode(true);
         let lastdiv = document.querySelector(".lastdiv");
 
-        let getAllDatabaseMode = mainDivCopy.querySelectorAll("[data-database-mode]")
+        let getAllDatabaseMode = mainDivCopy.querySelectorAll("[data-editable-or-non-editable-mode]")
         getAllDatabaseMode.forEach((el) => {
-            el.setAttribute("data-database-mode", "saved")
+            el.setAttribute("data-editable-or-non-editable-mode", "noneditable")
         })
 
         let getAllContentEditable = mainDivCopy.querySelectorAll("[contentEditable]")
@@ -1058,14 +1094,14 @@ function Editor() {
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content">
                 <div className="modal-header">
-                    <div onInput={(e) => editableValue(e, 'title')} contentEditable suppressContentEditableWarning className={styles.modalTitleDiv}>
+                    <div onInput={(e) => editableValue(e, 'title')} suppressContentEditableWarning className={styles.modalTitleDiv} id='modalTitleDiv'>
                         <h1 className="modal-title fs-5" id="exampleModalLabel">
                             <div dangerouslySetInnerHTML={{ __html: title }} />
                         </h1>
                     </div>
                     <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div onInput={(e)=>editableValue(e, 'body')} contentEditable suppressContentEditableWarning className="modal-body">
+                <div onInput={(e)=>editableValue(e, 'body')} suppressContentEditableWarning className="modal-body" id='modalBodyDiv'>
                     <div dangerouslySetInnerHTML={{ __html: body }} />
                 </div>
                 <div className="modal-footer">
